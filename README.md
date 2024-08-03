@@ -1,5 +1,5 @@
 # Music-Genre-Predictor
-This predictor predicts 10 genres (Blues Classical Country Disco Hip-hop Jazz Metal Pop Reggae Rock) with Decision Tree as the training algorithm model and STFT for feature extraction
+This predictor predicts 10 genres in GTZAN Dataset (Blues Classical Country Disco Hip-hop Jazz Metal Pop Reggae Rock) with Decision Tree as the training algorithm model and STFT for feature extraction
 
 Utilizing the Short-Time Fourier Transform (STFT) and a Decision Tree model, the system classifies music genres to provide personalized playlist links. Audio signals are captured using a laptop microphone, and features are extracted using STFT implemented with Librosa in Python on Jupyter Notebook. The GTZAN dataset is used for training and testing the model, achieving an average training accuracy of 75% and testing accuracy of 54%.
 
