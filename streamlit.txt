@@ -1,0 +1,96 @@
+#Menggunakan streamlit
+
+def prediksi_genre(buffer, sampling_rate):
+    features = ekstrak_fitur_dari_audio(buffer, sampling_rate)
+    if features is None:
+        st.write("Tidak dapat mengekstrak fitur")
+        return None, None
+    
+    features = features.reshape(1, -1)  # extracted features into a 2d array
+    try:
+        features_df = pd.DataFrame(features, columns=feature_names)
+        genre = load_train.predict(features_df)[0]
+        genre_name = change_labeltype.inverse_transform([genre])[0]
+        playlist_link = playlists.get(genre_name, 'Tidak ada playlist')
+        return genre_name, playlist_link
+    except Exception as e:
+        st.write(f"Prediksi error: {e}")
+        return None, None
+
+def plot_waveform(audio_data, sampling_rate):
+    plt.figure(figsize=(10, 4))
+    plt.subplot(2, 1, 1)
+    plt.plot(np.linspace(0, len(audio_data) / sampling_rate, num=len(audio_data)), audio_data)
+    plt.title('Waveform Audio')
+    plt.xlabel('Waktu (detik)')
+    plt.ylabel('Amplitudo')
+    
+    plt.subplot(2, 1, 2)
+    D = np.abs(librosa.stft(audio_data))
+    librosa.display.specshow(librosa.amplitude_to_db(D, ref=np.max), sr=sampling_rate, x_axis='time', y_axis='log')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title('STFT Spectrogram')
+    plt.xlabel('Waktu (s)')
+    plt.ylabel('Frekuensi (Hz)')
+    
+    plt.tight_layout()
+    st.pyplot(plt)
+
+# Custom CSS
+# Custom CSS
+st.markdown("""
+    <style>
+    body {
+        background-color: #e0f7fa;  /* Changed background color */
+        font-family: 'Arial', sans-serif;  /* Set the font family for the body */
+    }
+    .main .block-container {
+        padding-top: 2rem;  /* Top padding for the main block container */
+        padding-bottom: 2rem;  /* Bottom padding for the main block container */
+    }
+    .main h1 {
+        color: #DEF7FA;  /* Set the color of h1 headers */
+        text-align: center;  /* Center align the h1 headers */
+        font-size: 3rem;  /* Set the font size of h1 headers */
+    }
+    .main .stButton button {
+        background-color: #DEF7FA;  /* Background color for buttons */
+        color: white;  /* Text color for buttons */
+        border: none;  /* Remove border for buttons */
+        padding: 0.5rem 1rem;  /* Padding inside buttons */
+        font-size: 1.2rem;  /* Font size of button text */
+        border-radius: 8px;  /* Rounded corners for buttons */
+        cursor: pointer;  /* Change cursor to pointer when hovering over buttons */
+        transition: background-color 0.3s ease;  /* Smooth transition for background color change */
+    }
+    .main .stButton button:hover {
+        background-color: #357ABD;  /* Background color for buttons on hover */
+    }
+    .main .stSlider label {
+        font-size: 1.2rem;  /* Font size for slider labels */
+        color: #4A90E2;  /* Text color for slider labels */
+    }
+    .main .stSlider .css-1ucpu31 {
+        color: #4A90E2;  /* Text color for slider value */
+    }
+    .main .stMarkdown {
+        font-size: 1.1rem;  /* Font size for markdown text */
+        line-height: 1.6;  /* Line height for markdown text */
+        color: #FDEFFA;  /* Text color for markdown text */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+# Streamlit Interface
+st.title("Sistem Personalisasi Playlist Musik Berdasarkan Genre")
+
+if st.button('Rekam dan Prediksi Genre'):
+    buffer = rekam_audio(RECORD_DURATION, sampling_rate)
+    plot_waveform(buffer, sampling_rate)
+    genre_name, playlist_link = prediksi_genre(buffer, sampling_rate)
+    if genre_name:
+        st.write(f"Prediksi Genre: {genre_name}")
+        st.write(f"[Playlist Spotify Genre]({playlist_link})")
+    else:
+        st.error("Tidak dapat memprediksi genre")
